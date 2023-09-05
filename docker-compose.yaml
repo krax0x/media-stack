@@ -180,3 +180,20 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock
+
+#### Jellyseerr - requests management for movies/shows ####
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr
+    container_name: 1jellyseerr
+    networks:
+      - media-network
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_DIR}/jellyseerr:/app/config
+    ports:
+      - 5055:5055
+    restart: unless-stopped
