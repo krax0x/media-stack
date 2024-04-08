@@ -13,7 +13,6 @@ services:
   jellyfin:
     image: jellyfin/jellyfin
     container_name: jellyfin
-    user: ${PUID}:${PGID}
     networks:
       - media-network
     environment:
@@ -128,6 +127,7 @@ services:
     restart: unless-stopped
     depends_on:
       - qbittorrent
+      - prowlarr
 
 #### Library management/downloading for movies ####
 
@@ -150,25 +150,30 @@ services:
     restart: unless-stopped
     depends_on:
       - qbittorrent
+      - prowlarr
 
-#### Heimdall home page for all media-server applications ####
+#### Bazarr - manage subtitles ####
 
-  heimdall:
-    image: lscr.io/linuxserver/heimdall
-    container_name: heimdall
+  bazarr:
+    image: ghcr.io/linuxserver/bazarr
+    container_name: bazarr
+    networks:
+      - media-network
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TIMEZONE}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${CONFIG_DIR}/heimdall:/config
+      - ${CONFIG_DIR}/bazarr:/config
+      - ${TV_DIR}:/data/tv
+      - ${MOVIES_DIR}:/data/movies
     ports:
-      - "80:80"
-      - "443:443"
+      - 6767:6767
     restart: unless-stopped
-    networks:
-      - media-network
+    depends_on:
+      - qbittorrent
+      - prowlarr
 
 #### WatchTower - automatic docker image update ####
 
@@ -185,7 +190,7 @@ services:
 
   jellyseerr:
     image: fallenbagel/jellyseerr
-    container_name: 1jellyseerr
+    container_name: jellyseerr
     networks:
       - media-network
     environment:
@@ -193,7 +198,10 @@ services:
       - PGID=${PGID}
       - TZ=${TIMEZONE}
     volumes:
-      - ${CONFIG_DIR}/jellyseerr:/app/config
+      - ${CONFIG_DIR}/jellyseerr:/config
     ports:
       - 5055:5055
     restart: unless-stopped
+    depends_on:
+      - sonarr
+      - radarr
