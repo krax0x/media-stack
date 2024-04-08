@@ -2,7 +2,7 @@
 
 This Docker Compose configuration sets up a comprehensive media server stack, including media management, torrent downloading, subtitle management, and automatic updates, all within Docker containers.
  
- > [!faq] 
+ > [!warning] 
  > Only for educational purposes!
 
 ## Prerequisites
@@ -96,3 +96,4 @@ Replace `${CONFIG_DIR}`, `${DOWNLOAD_DIR}`, `${MEDIA_DIR}`, `${TV_DIR}`, `${MOVI
 
 - **Port:** 5055
 - **Volumes:** `${CONFIG_DIR}/jellyseerr:/config`
+
