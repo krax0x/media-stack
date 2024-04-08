@@ -1,9 +1,9 @@
 # Media Server Docker Compose Configuration
 
 This Docker Compose configuration sets up a comprehensive media server stack, including media management, torrent downloading, subtitle management, and automatic updates, all within Docker containers.
-
-> [!faq] 
-> Only for educational purposes!
+ 
+ > [!faq] 
+ > Only for educational purposes!
 
 ## Prerequisites
 
