@@ -24,7 +24,7 @@ services:
       # - ${CONFIG_DIR}/jellyfin:/log
       - ${CONFIG_DIR}/jellyfin:/cache
       - ${CONFIG_DIR}/jellyfin:/config
-      - ${MEDIA_DIR}:/data
+      - ${MEDIA_DIR}:/data/media
     ports:
       - "8096:8096"
     devices:
@@ -48,9 +48,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ${CONFIG_DIR}/qbittorrent:/config
       - ${DOWNLOAD_DIR}:/data/downloads
-      - ${DOWNLOAD_DIR}/tv:/data/tvdownloads
-      - ${DOWNLOAD_DIR}/movies:/data/filmdownloads
-      - ${DOWNLOAD_DIR}/music:/data/musicdownloads
     ports:
       - "8080:8080"
       - "6881:6881"
@@ -120,8 +117,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${CONFIG_DIR}/sonarr:/config
-      - ${DOWNLOAD_DIR}:/data/completed/tvdownloads
-      - ${TV_DIR}:/data/tv
+      - ${BASE_DIR}:/data
     ports:
       - "8989:8989"
     restart: unless-stopped
@@ -143,8 +139,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${CONFIG_DIR}/radarr:/config
-      - ${DOWNLOAD_DIR}:/data/completed/movies/
-      - ${MOVIES_DIR}:/data/movies
+      - ${BASE_DIR}:/data
     ports:
       - "7878:7878"
     restart: unless-stopped
@@ -166,8 +161,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${CONFIG_DIR}/bazarr:/config
-      - ${TV_DIR}:/data/tv
-      - ${MOVIES_DIR}:/data/movies
+      - ${MEDIA_DIR}:/data/media
     ports:
       - 6767:6767
     restart: unless-stopped
