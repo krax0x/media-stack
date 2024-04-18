@@ -174,7 +174,7 @@ services:
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
-    command: --cleanup
+    command: --cleanup 
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -192,7 +192,7 @@ services:
       - PGID=${PGID}
       - TZ=${TIMEZONE}
     volumes:
-      - ${CONFIG_DIR}/jellyseerr:/config
+      - ${CONFIG_DIR}/jellyseerr:/app/config
     ports:
       - 5055:5055
     restart: unless-stopped
