@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  freshrss:
+    image: freshrss/freshrss:latest
+    container_name: freshrss
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: 10m
+    volumes:
+      - /data/config/freshrss:/var/www/FreshRSS/data
+      - /data/config/freshrss/extensions:/var/www/FreshRSS/extensions
+    ports:
+      - "8081:80"
+    environment:
+      TZ: Europe/Sofia
+      CRON_MIN: '*/60'
