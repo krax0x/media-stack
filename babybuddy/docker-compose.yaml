@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  babybuddy:
+    image: lscr.io/linuxserver/babybuddy
+    container_name: babybuddy
+    environment:
+      - TZ=Europe/Sofia
+    volumes:
+      - /data/config/babybuddy:/config
+    ports:
+      - 8383:8000
+    restart: unless-stopped
