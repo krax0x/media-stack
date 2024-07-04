@@ -97,3 +97,6 @@ Replace `${BASE_DIR}`, `${CONFIG_DIR}`, `${MEDIA_DIR}`, `${DOWNLOAD_DIR}` with a
 - **Port:** 5055
 - **Volumes:** `${CONFIG_DIR}/jellyseerr:/config`
 
+## Useful links
+
+- Amazing repo with plugins for jellyfin - [Awesome Jellyfin](https://github.com/awesome-jellyfin/awesome-jellyfin?tab=readme-ov-file)
