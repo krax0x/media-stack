@@ -10,7 +10,7 @@ This Docker Compose configuration sets up a comprehensive media server stack, in
 Before running this setup, ensure you have the following installed on your host machine:
 
 - Docker
-- Docker Compose (version 3.9)
+- Docker Compose
 ## Configuration
 
 Ensure you have the following directory structure on your host machine:
@@ -27,7 +27,7 @@ data
     └── tv
 ```
 
-Replace `${BASE_DIR}`, `${CONFIG_DIR}`, `${MEDIA_DIR}`, `${DOWNLOAD_DIR}` with appropriate paths according to your setup in .env file.
+Replace `${BASE_DIR}`, `/data/config`, `/data/media`, `/data/downloads` with appropriate paths according to your setup in .env file.
 ## Getting Started
 
 1. Clone this repository to your local machine.
@@ -47,42 +47,49 @@ Replace `${BASE_DIR}`, `${CONFIG_DIR}`, `${MEDIA_DIR}`, `${DOWNLOAD_DIR}` with a
 [Jellyfin](https://jellyfin.org/) is a free, open-source media server that enables you to organize, stream, and share your media.
 
 - **Port:** 8096
-- **Volumes:** `${CONFIG_DIR}/jellyfin:/cache`, `${CONFIG_DIR}/jellyfin:/config`, `${MEDIA_DIR}:/data/media`
+- **Volumes:** `/data/config/jellyfin:/cache`, `/data/config/jellyfin:/config`, `/data/media:/data/media`
 
 ### qBittorrent
 
 [qBittorrent](https://www.qbittorrent.org/) is a fast, lightweight torrent client with a web interface.
 
 - **Port:** 8080
-- **Volumes:** `${CONFIG_DIR}/qbittorrent:/config`, `${DOWNLOAD_DIR}:/data/downloads`. 
+- **Volumes:** `/data/config/qbittorrent:/config`, `/data/downloads:/data/downloads`. 
 
 ### Prowlarr
 
 [Prowlarr](https://github.com/Prowlarr/Prowlarr) is an indexer that allows you to use torrent trackers with *arr services.
 
 - **Port:** 9696
-- **Volumes:** `${CONFIG_DIR}/prowlarr:/config`
+- **Volumes:** `/data/config/prowlarr:/config`
 
 ### Sonarr
 
-[Sonarr](https://sonarr.tv/) is a tv show collection manager for Usenet and BitTorrent users.
+[Sonarr](https://sonarr.tv/) is a tv show collection manager.
 
 - **Port:** 8989
-- **Volumes:** `${CONFIG_DIR}/sonarr:/config`, `${BASE_DIR}:/data`
+- **Volumes:** `/data/config/sonarr:/config`, `${BASE_DIR}:/data`
 
 ### Radarr
 
-[Radarr](https://radarr.video/) is a movie collection manager for Usenet and BitTorrent users.
+[Radarr](https://radarr.video/) is a movie collection manager.
 
 - **Port:** 7878
-- **Volumes:** `${CONFIG_DIR}/radarr:/config`, `${BASE_DIR}:/data`
+- **Volumes:** `/data/config/radarr:/config`, `${BASE_DIR}:/data`
 
 ### Bazarr
 
 [Bazarr](https://www.bazarr.media/) is a companion application to Sonarr and Radarr that manages and downloads subtitles.
 
 - **Port:** 6767
-- **Volumes:** `${CONFIG_DIR}/bazarr:/config`, `${MEDIA_DIR}:/data/movies`
+- **Volumes:** `/data/config/bazarr:/config`, `/data/media:/data/movies`
+
+### Readarr
+
+[Readarr](https://readarr.com/) is a eBook collection manager.
+
+- **Port:** 8787
+- **Volumes:** `/data/config/readarr:/config`, `/data/media/books:/books`, `/data/downloads:/data/downloads `
 
 ### WatchTower
 
@@ -95,7 +102,13 @@ Replace `${BASE_DIR}`, `${CONFIG_DIR}`, `${MEDIA_DIR}`, `${DOWNLOAD_DIR}` with a
 [Jellyseerr](https://github.com/fallenbagel/Jellyseerr) is a service for managing requests for movies and shows.
 
 - **Port:** 5055
-- **Volumes:** `${CONFIG_DIR}/jellyseerr:/config`
+- **Volumes:** `/data/config/jellyseerr:/config`
+
+### Recyclarr
+
+[Recyclarr](https://recyclarr.dev/wiki/) is a companion CLI tool for Sonarr/Radarr to syncronize recommended settings with TRaSH guides.
+
+- **Volumes:** '/data/config/recyclarr:/config'
 
 ## Useful links
 
