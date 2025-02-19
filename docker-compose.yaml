@@ -19,12 +19,14 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TIMEZONE}
+      - JELLYFIN_PublishedServerUrl=${IP}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      # - ${CONFIG_DIR}/jellyfin:/log
-      - ${CONFIG_DIR}/jellyfin:/cache
-      - ${CONFIG_DIR}/jellyfin:/config
-      - ${MEDIA_DIR}:/data/media
+      - ${CONFIG_DIR}/jellyfin/cache:/cache
+      - ${CONFIG_DIR}/jellyfin/config:/config
+      - type: bind
+        source: ${MEDIA_DIR}
+        target: /data/media
     ports:
       - "8096:8096"
     devices:
@@ -60,6 +62,11 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 6G
 
 #### Indexer - allows you to use torrent trackers with *arr services ####
 
@@ -103,7 +110,7 @@ services:
   #     retries: 3
   #   restart: unless-stopped
 
-#### Library management/downloading for TV series ####
+#### Sonarr - library management for TV series ####
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -125,7 +132,7 @@ services:
       - qbittorrent
       - prowlarr
 
-#### Library management/downloading for movies ####
+#### Radarr - library management for movies ####
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
@@ -150,13 +157,13 @@ services:
 #### Bazarr - manage subtitles ####
 
   bazarr:
-    image: ghcr.io/linuxserver/bazarr
+    image: ghcr.io/linuxserver/bazarr:v1.5.0-ls283
     container_name: bazarr
     networks:
       - media-network
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
+      - PUID=0
+      - PGID=0
       - TZ=${TIMEZONE}
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -168,6 +175,22 @@ services:
     depends_on:
       - qbittorrent
       - prowlarr
+
+#### Readarr - manage ebooks ####
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_DIR}/readarr:/config
+      - ${MEDIA_DIR}/books:/books #optional
+      - ${DOWNLOAD_DIR}:/data/downloads #optional
+    ports:
+      - 8787:8787
+    restart: unless-stopped
 
 #### WatchTower - automatic docker image update ####
 
@@ -199,3 +222,17 @@ services:
     depends_on:
       - sonarr
       - radarr
+
+#### Recyclarr - automatic sync for recommended settings from TRaSH Guides ####
+
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr
+    container_name: recyclarr
+    networks:
+      - media-network
+    volumes:
+      - ${CONFIG_DIR}/recyclarr:/config
+    environment:
+      - TZ=${TIMEZONE}
+      - PUID=0
+      - PGID=0
