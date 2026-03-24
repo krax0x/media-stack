@@ -3,7 +3,7 @@ version: '3.9'
 #### NETWORK ####
 
 networks:
-  media-network:
+  media:
     driver: bridge
 
 #### SERVICES ####
@@ -14,15 +14,16 @@ services:
     image: jellyfin/jellyfin
     container_name: jellyfin
     networks:
-      - media-network
+      - media
+    user: root
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TIMEZONE}
-      - JELLYFIN_PublishedServerUrl=${IP}
+        #      - JELLYFIN_PublishedServerUrl=${IP}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${CONFIG_DIR}/jellyfin/cache:/cache
+        #      - ${CONFIG_DIR}/jellyfin/cache:/cache
       - ${CONFIG_DIR}/jellyfin/config:/config
       - type: bind
         source: ${MEDIA_DIR}
@@ -31,6 +32,30 @@ services:
       - "8096:8096"
     devices:
       - /dev/dri:/dev/dri # for harware transcoding
+    group_add:
+      - "video"
+    restart: unless-stopped
+
+#### Jellyseerr - requests management for movies/shows ####
+
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    container_name: seerr
+    networks: 
+      - media
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TIMEZONE}
+    ports:
+      - 5055:5055
+    volumes:
+      - ${CONFIG_DIR}/jellyseerr:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
     restart: unless-stopped
 
 #### Torrent client ####
@@ -39,7 +64,7 @@ services:
     image: lscr.io/linuxserver/qbittorrent
     container_name: qbittorrent
     networks:
-      - media-network
+      - media
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -74,7 +99,7 @@ services:
     image: lscr.io/linuxserver/prowlarr
     container_name: prowlarr
     networks:
-      - media-network
+      - media
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -85,8 +110,6 @@ services:
     ports:
       - 9696:9696
     restart: unless-stopped
-    depends_on:
-      - qbittorrent
 
 #### Indexer - allows you to use torrent trackers with *arr services ####
 
@@ -116,7 +139,7 @@ services:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     networks:
-      - media-network
+      - media
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -128,9 +151,6 @@ services:
     ports:
       - "8989:8989"
     restart: unless-stopped
-    depends_on:
-      - qbittorrent
-      - prowlarr
 
 #### Radarr - library management for movies ####
 
@@ -138,7 +158,7 @@ services:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     networks:
-      - media-network
+      - media
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -150,89 +170,56 @@ services:
     ports:
       - "7878:7878"
     restart: unless-stopped
-    depends_on:
-      - qbittorrent
-      - prowlarr
 
 #### Bazarr - manage subtitles ####
 
   bazarr:
-    image: ghcr.io/linuxserver/bazarr:v1.5.0-ls283
+    image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
-    networks:
-      - media-network
     environment:
       - PUID=0
       - PGID=0
       - TZ=${TIMEZONE}
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${CONFIG_DIR}/bazarr:/config
-      - ${MEDIA_DIR}:/data/media
+      - /data/config/bazarr:/config
+      - ${BASE_DIR}:/data
     ports:
       - 6767:6767
     restart: unless-stopped
-    depends_on:
-      - qbittorrent
-      - prowlarr
-
-#### Readarr - manage ebooks ####
-  readarr:
-    image: lscr.io/linuxserver/readarr:develop
-    container_name: readarr
-    environment:
-      - PUID=0
-      - PGID=0
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${CONFIG_DIR}/readarr:/config
-      - ${MEDIA_DIR}/books:/books #optional
-      - ${DOWNLOAD_DIR}:/data/downloads #optional
-    ports:
-      - 8787:8787
-    restart: unless-stopped
+    networks:
+      - media
 
 #### WatchTower - automatic docker image update ####
 
   watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    command: --cleanup 
-    restart: always
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-
-#### Jellyseerr - requests management for movies/shows ####
-
-  jellyseerr:
-    image: fallenbagel/jellyseerr
-    container_name: jellyseerr
-    networks:
-      - media-network
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${CONFIG_DIR}/jellyseerr:/app/config
-    ports:
-      - 5055:5055
+    image: nickfedor/watchtower:latest
     restart: unless-stopped
-    depends_on:
-      - sonarr
-      - radarr
-
-#### Recyclarr - automatic sync for recommended settings from TRaSH Guides ####
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   recyclarr:
     image: ghcr.io/recyclarr/recyclarr
     container_name: recyclarr
-    networks:
-      - media-network
+    user: 0:0
+    networks: 
+      - media
     volumes:
       - ${CONFIG_DIR}/recyclarr:/config
     environment:
       - TZ=${TIMEZONE}
-      - PUID=0
-      - PGID=0
+
+
+  flaresolverr:
+    # DockerHub mirror flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FILE=${LOG_FILE:-none}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/Sofia
+    ports:
+      - "${PORT:-8191}:8191"        
+    networks:
+      - media
