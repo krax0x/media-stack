@@ -93,7 +93,7 @@ Replace `${BASE_DIR}`, `/data/config`, `/data/media`, `/data/downloads` with app
 
 ### WatchTower
 
-[Watchtower](https://containrrr.dev/watchtower/) automatically updates Docker containers when new versions are available.
+[Watchtower](https://watchtower.nickfedor.com) automatically updates Docker containers when new versions are available.
 
 - **Volumes:** `/var/run/docker.sock:/var/run/docker.sock`
 
