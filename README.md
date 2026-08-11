@@ -84,22 +84,15 @@ Replace `${BASE_DIR}`, `/data/config`, `/data/media`, `/data/downloads` with app
 - **Port:** 6767
 - **Volumes:** `/data/config/bazarr:/config`, `/data/media:/data/movies`
 
-### Readarr
-
-[Readarr](https://readarr.com/) is a eBook collection manager.
-
-- **Port:** 8787
-- **Volumes:** `/data/config/readarr:/config`, `/data/media/books:/books`, `/data/downloads:/data/downloads `
-
 ### WatchTower
 
 [Watchtower](https://watchtower.nickfedor.com) automatically updates Docker containers when new versions are available.
 
 - **Volumes:** `/var/run/docker.sock:/var/run/docker.sock`
 
-### Jellyseerr
+### Seerr
 
-[Jellyseerr](https://github.com/fallenbagel/Jellyseerr) is a service for managing requests for movies and shows.
+[Seerr](https://github.com/seerr-team/seerr) is a service for managing requests for movies and shows.
 
 - **Port:** 5055
 - **Volumes:** `/data/config/jellyseerr:/config`
@@ -109,6 +102,10 @@ Replace `${BASE_DIR}`, `/data/config`, `/data/media`, `/data/downloads` with app
 [Recyclarr](https://recyclarr.dev/wiki/) is a companion CLI tool for Sonarr/Radarr to syncronize recommended settings with TRaSH guides.
 
 - **Volumes:** '/data/config/recyclarr:/config'
+
+### Autoheal
+
+[Autoheal](https://github.com/willfarrell/docker-autoheal) is healthcheck helper for selfhealing containers (if unhealthy it restarts the container). It depends on container healthchecks!
 
 ## Useful links
 
