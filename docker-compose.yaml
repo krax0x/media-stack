@@ -52,7 +52,7 @@ services:
     networks: 
       - media
     environment:
-      - LOG_LEVEL=debug
+      - LOG_LEVEL=info
       - TZ=${TIMEZONE}
     ports:
       - 5055:5055
