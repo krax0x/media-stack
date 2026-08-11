@@ -207,6 +207,7 @@ services:
 
   watchtower:
     image: nickfedor/watchtower:latest
+    container_name: watchtower
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -244,6 +245,7 @@ services:
     environment:
       AUTOHEAL_CONTAINER_LABEL: autoheal
     image: willfarrell/autoheal:latest
+    container_name: autoheal
     network_mode: none
     restart: always
     volumes:
