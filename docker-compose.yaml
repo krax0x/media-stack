@@ -35,6 +35,14 @@ services:
     group_add:
       - "video"
     restart: unless-stopped
+    labels:
+      - autoheal=true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8096/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
 
 #### Jellyseerr - requests management for movies/shows ####
 
@@ -57,6 +65,8 @@ services:
       interval: 15s
       retries: 3
     restart: unless-stopped
+    labels:
+      - autoheal=true
 
 #### Torrent client ####
 
@@ -82,10 +92,11 @@ services:
     labels:
       - autoheal=true
     healthcheck:
-      test: curl google.com || exit 1
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 1"]
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
+      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
@@ -110,28 +121,14 @@ services:
     ports:
       - 9696:9696
     restart: unless-stopped
-
-#### Indexer - allows you to use torrent trackers with *arr services ####
-
-  # jackett:
-  #   image: lscr.io/linuxserver/jackett:latest
-  #   container_name: jackett
-  #   environment:
-  #     - PUID=${PUID}
-  #     - PGID=${PGID}
-  #     - TZ=${TIMEZONE}
-  #   volumes:
-  #     - /volume1/docker/jackett/config:/config
-  #   ports:
-  #     - "9117:9117"
-  #   labels:
-  #     - autoheal=true
-  #   healthcheck:
-  #     test: curl google.com || exit 1
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #   restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9696/ping || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    labels:
+      - autoheal=true
 
 #### Sonarr - library management for TV series ####
 
@@ -151,6 +148,15 @@ services:
     ports:
       - "8989:8989"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8989/ping || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    labels:
+      - autoheal=true
+
 
 #### Radarr - library management for movies ####
 
@@ -170,6 +176,14 @@ services:
     ports:
       - "7878:7878"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:7878/ping || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    labels:
+      - autoheal=true
 
 #### Bazarr - manage subtitles ####
 
@@ -223,3 +237,15 @@ services:
       - "${PORT:-8191}:8191"        
     networks:
       - media
+
+  autoheal:
+    deploy:
+      replicas: 1
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: autoheal
+    image: willfarrell/autoheal:latest
+    network_mode: none
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
